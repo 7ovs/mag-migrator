@@ -1,0 +1,33 @@
+{
+  "attribute": [
+    "is_wysiwyg_enabled",
+    "is_html_allowed_on_front",
+    "used_for_sort_by",
+    "is_filterable",
+    "is_filterable_in_search",
+    "position",
+    "is_searchable",
+    "is_visible_in_advanced_search",
+    "is_comparable",
+    "is_visible_on_front",
+    "used_in_product_listing",
+    "is_visible",
+    "scope",
+    "attribute_code",
+    "frontend_input",
+    "entity_type_id",
+    "is_required",
+    "options",
+    "is_user_defined",
+    "default_frontend_label",
+    "frontend_labels",
+    "backend_type",
+    "default_value",
+    "is_unique"
+  ],
+  "attributeSet": [
+    "attribute_set_name",
+    "sort_order",
+    "entity_type_id"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "app-2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "colors": "^1.1.2",
+    "lodash": "^4.17.4",
+    "mocha": "^3.3.0",
+    "q": "^1.5.0",
+    "uasync": "^0.1.0"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script/register -t 20000 -R spec"
+  }
+}
