@@ -2,17 +2,23 @@ assert = require('assert')
 fs = require "fs"
 path = require "path"
 
+access = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../etc/access.json"), "utf-8"))
+
 {
-  isAttributeExists
-  isAttributeSetExists
   normalizeAttribute
   normalizeAttributeSet
   createAttribute
   createAttributeSet
   deleteAttribute
   deleteAttributeSet
-} = require('../mag-api')
+} = require('../mag-api')(access.new)
 
+{
+  getAttributes
+  getAttributeSets
+  isAttributeExists
+  isAttributeSetExists
+} = require('../mag-api')(access.old)
 
 describe 'Attempt-1', () ->
 
@@ -32,11 +38,11 @@ describe 'Attempt-1', () ->
     it 'should create and delete attribute', (done) ->
       data = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../samples/sample-attribute.json"), "utf-8"))
       norm = normalizeAttribute(data)
-      createAttribute(norm)
+      createAttribute(data)
         .then (attr) ->
           assert.ok(attr.message == undefined)
           assert.equal("embroidery_colour", attr.attribute_code)
-          assert.ok(attr.options.length >= norm.options.length)
+          assert.ok(attr.options.length >= data.options.length)
           deleteAttribute(attr.attribute_id).then (err) ->
             assert.ok(err == null)
             done()
@@ -49,8 +55,8 @@ describe 'Attempt-1', () ->
   describe '#createAttributeSet() && deleteAttributeSet()', () ->
     it 'should create attribute set', (done) ->
       data = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../samples/sample-attribute-set.json"), "utf-8"))
-      norm = normalizeAttributeSet(data)
-      createAttributeSet(norm)
+      #norm = normalizeAttributeSet(data)
+      createAttributeSet(data)
         .then (attrSet) ->
           assert.ok(attrSet.message == undefined)
           assert.equal("Eggs", attrSet.attribute_set_name)
