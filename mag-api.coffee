@@ -4,7 +4,7 @@ require('uasync')(_)
 fs = require 'fs'
 path = require 'path'
 
-filters = JSON.parse(fs.readFileSync(path.resolve(__dirname, "etc/filters.json"), "utf-8"))
+filters = JSON.parse(fs.readFileSync(path.resolve(__dirname, "cfg/filters.json"), "utf-8"))
 
 MagRequestFactory = require("./mag-request-factory")
 
