@@ -29,5 +29,10 @@
     "attribute_set_name",
     "sort_order",
     "entity_type_id"
+  ],
+  "product": [
+    "id",
+    "created_at",
+    "updated_at"
   ]
 }

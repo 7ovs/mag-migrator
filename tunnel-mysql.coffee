@@ -11,15 +11,28 @@ access = _.mapValues access, (cfg, key) ->
   cfg.ssh.privateKey = fs.readFileSync(cfg.ssh.privateKey)
   return cfg
 
+
+getProductsCount = (access) ->
+  return new Promise (resolve, reject) ->
+    TunnelSSH access.ssh, (error, tunnel) ->
+      connection = mysql.createConnection(access.mysql)
+
+      QUERY = "SELECT count(*) FROM `catalog_product_entity`"
+      connection.query QUERY, (error, results, fields) ->
+        connection.destroy()
+        tunnel.close()
+        reject(error) if error
+        resolve(results)
+
+
 getGroupsForAttributeSet = (attrSetId, access) ->
   return new Promise (resolve, reject) ->
-    console.log access
     TunnelSSH access.ssh, (error, tunnel) ->
       connection = mysql.createConnection(access.mysql)
 
       QUERY = """
       SELECT ag.attribute_group_id, ag.attribute_group_code, ag.attribute_group_name, ag.sort_order 
-      FROM convent2.eav_attribute_group AS ag
+      FROM eav_attribute_group AS ag
       WHERE attribute_set_id = #{attrSetId}
       ORDER BY sort_order
       """
@@ -36,9 +49,9 @@ getGroupsAndSetsForAttribute = (attrId, access) ->
 
       QUERY = """
       SELECT ea.attribute_set_id, ae.attribute_set_name, ag.attribute_group_id, ag.attribute_group_code, ag.attribute_group_name, ag.sort_order 
-      FROM convent2.eav_entity_attribute AS ea 
-      INNER JOIN convent2.eav_attribute_group AS ag ON ea.`attribute_group_id` = ag.`attribute_group_id` 
-      INNER JOIN convent2.eav_attribute_set AS ae ON ae.`attribute_set_id` = ea.`attribute_set_id`
+      FROM eav_entity_attribute AS ea 
+      INNER JOIN eav_attribute_group AS ag ON ea.`attribute_group_id` = ag.`attribute_group_id` 
+      INNER JOIN eav_attribute_set AS ae ON ae.`attribute_set_id` = ea.`attribute_set_id`
       WHERE attribute_id = #{attrId}
       """
 
@@ -50,18 +63,18 @@ getGroupsAndSetsForAttribute = (attrId, access) ->
 
 getGroupsAndSetsForAttributesList = (list, access) ->
   return new Promise (resolve, reject) ->
-    console.log access
     TunnelSSH access.ssh, (error, tunnel) ->
       connection = mysql.createConnection(access.mysql)
 
       Promise.mapSeries list, (attrId) ->
         QUERY = """
         SELECT ea.attribute_set_id, ae.attribute_set_name, ag.attribute_group_id, ag.attribute_group_code, ag.attribute_group_name, ag.sort_order 
-        FROM convent2.eav_entity_attribute AS ea 
-        INNER JOIN convent2.eav_attribute_group AS ag ON ea.`attribute_group_id` = ag.`attribute_group_id` 
-        INNER JOIN convent2.eav_attribute_set AS ae ON ae.`attribute_set_id` = ea.`attribute_set_id`
+        FROM eav_entity_attribute AS ea 
+        INNER JOIN eav_attribute_group AS ag ON ea.`attribute_group_id` = ag.`attribute_group_id` 
+        INNER JOIN eav_attribute_set AS ae ON ae.`attribute_set_id` = ea.`attribute_set_id`
         WHERE attribute_id = #{attrId}
         """
+
         return new Promise (resolve, reject) ->
           connection.query QUERY, (error, results, fields) ->
             return reject(error) if error
@@ -84,7 +97,7 @@ getGroupsForAttributeSetsList = (list, access) ->
       Promise.mapSeries list, (attrSetId) ->
         QUERY = """
         SELECT ag.attribute_group_id, ag.attribute_group_code, ag.attribute_group_name, ag.sort_order 
-        FROM convent2.eav_attribute_group AS ag
+        FROM eav_attribute_group AS ag
         WHERE attribute_set_id = #{attrSetId}
         ORDER BY sort_order
         """
@@ -103,21 +116,35 @@ getGroupsForAttributeSetsList = (list, access) ->
         reject(e)
 
 
+getProductsCount = (access) ->
+  return new Promise (resolve, reject) ->
+    TunnelSSH access.ssh, (error, tunnel) ->
+      connection = mysql.createConnection(access.mysql)
+
+      QUERY = "SELECT count(*) FROM `catalog_product_entity`"
+      connection.query QUERY, (error, results, fields) ->
+        connection.destroy()
+        tunnel.close()
+        reject(error) if error
+        resolve(parseInt(results[0]['count(*)'],10))
+
+
 module.exports = {
   getGroupsForAttributeSet
   getGroupsAndSetsForAttribute
   getGroupsAndSetsForAttributesList
   getGroupsForAttributeSetsList
+  getProductsCount
 }
     
   
-# getGroupsAndSetsForAttributesList([100, 101, 102], access.old).then (results) ->
+# getGroupsAndSetsForAttributesList([100, 101, 102], access.new).then (results) ->
 #   console.log JSON.stringify(results, null, '  ')
 #   console.log results.length
 # .catch (error) ->
 #   console.log error
 
-# getGroupsForAttributeSetsList([50, 51, 52], access.old).then (results) ->
+# getGroupsForAttributeSetsList([50, 51, 52], access.new).then (results) ->
 #   console.log JSON.stringify(results, null, '  ')
 #   console.log results.length
 # .catch (error) ->
@@ -128,7 +155,7 @@ module.exports = {
 # .catch (error) ->
 #   console.log error
 
-# getGroupsAndSetsForAttribute(163, access.old).then (results) ->
+# getGroupsAndSetsForAttribute(171, access.old).then (results) ->
 #   console.log JSON.stringify(results, null, '  ')
 # .catch (error) ->
 #   console.log error
